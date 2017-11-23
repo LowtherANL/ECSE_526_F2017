@@ -26,7 +26,7 @@ class Layer(object):
         """Run back-propagation in recursive fashion through layers"""
         result = self.apply(sample)
         if self.next is None:
-            error = expected - result
+            error = (expected - result).transpose()
         else:
             error = self.next.back_propagate(result, expected)
         # Double check matrix operations for correct updates

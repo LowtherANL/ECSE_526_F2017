@@ -1,6 +1,7 @@
 """Neural Network class, currently only supports fully connected"""
 import numpy as np
 import layer as fcl
+import random
 
 
 # currently just works for fully connected
@@ -26,12 +27,30 @@ class NeuralNetwork(object):
             sample = layer.apply(sample)
         return sample
 
-    def backprop(self, sample, expected):
-        """applies back-propagation for the network"""
-        result = self.apply(sample)
-        # TODO write back-propagation for network
-        # consider case of using multiple exaples at once for vectoriization
+    def stochastic_backprop(self, cases, results, batch_size=1):
+        """applies one iteration of stochastic back-propagation for the network"""
+        # build batch
+        samples = np.ndarray((np.size(cases, axis=0), batch_size))
+        expected = np.ndarray((np.size(results, axis=0), batch_size))
+        used = set()
+        for i in range(batch_size):
+            j = random.randint(np.size(cases, axis=1))
+            while j in used:
+                j = random.randint(np.size(cases, axis=1))
+            used.add(j)
+            samples[:,i] = cases[:,j]
+            expected[:,i] = cases[:,j]
+        # apply back-propagation
+        self.layers[0].back_propagate(samples,expected)
+        # TODO add proper iteration and step size changing
 
-    # TODO allow updating and iterative construction
+    def add_layer(self, layer):
+        """Adds a layer to the current network, on the end"""
+        # Indexed addition would need size checking, and might be worth adding later
+        self.size += 1
+        self.layers.append(layer)
+        # splat operator into list with added value, reconvert to tuple
+        self.shape = tuple([*self.shape, layer.size])
+
     # TODO add file saving and restoring
     # TODO string and pretty printing functions
