@@ -14,12 +14,12 @@ class Layer(object):
         self.size = size
         self.input = inputs
         # self.weights = np.ndarray((size, inputs))
-        weight_range = np.sqrt(3 * inputs)
+        weight_range = np.sqrt(3 / inputs)
         self.weights = np.random.uniform(-weight_range, weight_range, (size, inputs))
         self.biases = np.random.uniform(-weight_range, weight_range, (size, 1))
         self.next = next_layer
         # Get correct step size, possibly in neural network
-        self.step = .01
+        self.step = .1
 
     def apply(self, sample):
         """Computes final result for a given input sample"""
@@ -30,15 +30,22 @@ class Layer(object):
         """Run back-propagation in recursive fashion through layers"""
         result = self.apply(sample)
         if self.next is None:
-            error = (expected - result).transpose()
+            error = (result - expected).transpose()
         else:
             error = self.next.back_propagate(result, expected)
         # Double check matrix operations for correct updates
-        jacobean = 1 - result**2
+        # print('error: \n', error)
+        jacobean = (1 - (result**2)).transpose()
+        # print('jac: \n', jacobean)
         factors = jacobean * error
-        self.weights = self.weights + (self.step * (factors @ sample).transpose())
-        self.biases = self.biases + (self.step * factors)
-        return self.weights @ error
+        # print('factors: \n', factors)
+        #print(sample @ factors)
+        #print(self.weights)
+        out = error @ self.weights
+        self.weights = self.weights - (self.step * (sample @ factors).transpose())
+        self.biases = self.biases - (self.step * factors.transpose())
+        #print(self.weights)
+        return out
 
     # TODO implement file serialization and deserialization
 
