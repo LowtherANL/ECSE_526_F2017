@@ -7,7 +7,7 @@ import numpy as np
 # need modification of the back propagation to properly behave.
 class Layer(object):
     """Fully connected neural network using vectorized operations"""
-    # TODO implment correct biasing terms
+    # TODO implement correct biasing terms
     def __init__(self, size=1, inputs=1, next_layer=None):
         """Initializer takes number of nodes and expected size of input"""
         # next_layer parameter, or next attribute should point to the next layer of nodes for back-prop
@@ -26,25 +26,40 @@ class Layer(object):
         activations = (self.weights @ sample) + self.biases
         return np.tanh(activations)
 
-    def back_propagate(self, sample, expected):
+    def apply_chain(self, sample):
+        output = self.apply(sample)
+        if self.next is not None:
+            return self.next.apply_chain(output)
+        else:
+            return output
+
+    def back_propagate(self, sample, expected, debug=False):
         """Run back-propagation in recursive fashion through layers"""
         result = self.apply(sample)
         if self.next is None:
             error = (result - expected).transpose()
         else:
-            error = self.next.back_propagate(result, expected)
+            error = self.next.back_propagate(result, expected, debug)
         # Double check matrix operations for correct updates
-        # print('error: \n', error)
+        if debug:
+            print('error: \n', error)
         jacobean = (1 - (result**2)).transpose()
-        # print('jac: \n', jacobean)
+        if debug:
+            print('jac: \n', jacobean)
         factors = jacobean * error
-        # print('factors: \n', factors)
-        #print(sample @ factors)
+        if debug:
+            print('factors: \n', factors)
+        if debug:
+            print('weighted change: \n', sample @ factors)
         #print(self.weights)
         out = error @ self.weights
         self.weights = self.weights - (self.step * (sample @ factors).transpose())
-        self.biases = self.biases - (self.step * factors.transpose())
-        #print(self.weights)
+        print(factors.transpose())
+        print(np.mean(factors, axis=0))
+        self.biases = self.biases - (self.step * np.mean(factors.transpose(), axis=1))
+        if debug:
+            print(self.weights)
+            print(self.biases)
         return out
 
     # TODO implement file serialization and deserialization
