@@ -113,5 +113,5 @@ print(L2.weights)
 print(L2.biases)
 print('Test cases')
 for i in range(4):
-    print('case: ', test_data[i].transpose())
-    print('output: ', L1.apply_chain(test_data[i]))
+    print('case: \n', test_data[:,i,np.newaxis])
+    print('output: ', L1.apply_chain(test_data[:,i,np.newaxis]))
