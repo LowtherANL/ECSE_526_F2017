@@ -55,8 +55,8 @@ class Layer(object):
         out = error @ self.weights
         self.weights = self.weights - (self.step * (sample @ factors).transpose())
         print(factors.transpose())
-        print(np.mean(factors, axis=0))
-        self.biases = self.biases - (self.step * np.mean(factors.transpose(), axis=1))
+        print(np.mean(factors, axis=0, keepdims=True))
+        self.biases = self.biases - (self.step * np.mean(factors.transpose(), axis=1, keepdims=True))
         if debug:
             print(self.weights)
             print(self.biases)
