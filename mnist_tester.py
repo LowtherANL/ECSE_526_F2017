@@ -21,7 +21,7 @@ L1.next = L2
 L2.next = L3
 
 print('Training Process')
-for i in range (100):
+for i in range (5000):
     index = random.randint(0, image_count)
     elist = [[0] for j in range(10)]
     elist[labels[index]][0] = 0.8
@@ -30,12 +30,13 @@ for i in range (100):
     L1.back_propagate(sample, expected)
 
 print('Testing')
-for i in range (10):
+for i in range(10):
     index = random.randint(0, image_count)
     elist = [[0] for j in range(10)]
     elist[labels[index]][0] = 0.8
     expected = np.asarray([elist])
-    sample = images[index]
+    sample = images[index].reshape(feature_length,1)
     print('Target: ', labels[index])
-    print('Result: ')
-    print(L1.apply_chain(sample))
+    output = L1.apply_chain(sample)
+    print('Result: ', np.argmax(output))
+    print(output.transpose())
