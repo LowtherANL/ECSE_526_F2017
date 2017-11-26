@@ -76,7 +76,7 @@ class LinearLayer(Layer):
     def __init__(self, size=1, inputs=1, slope=1, next_layer=None):
         super().__init__(size, inputs, next_layer)
         self.slope = 1
-        self.jacobean = np.ndarray((size, 1))
+        self.jacobean = np.ndarray((1, size))
         self.jacobean.fill(slope)
 
     def apply(self, sample):
@@ -114,7 +114,7 @@ class StepLayer(Layer):
         steps.append(1.0)
         self.steps = np.asarray(steps)
         self.max = intervals + 1
-        self.jacobean = np.ndarray((size, 1))
+        self.jacobean = np.ndarray((1, size))
         self.jacobean.fill(1)
 
     def apply(self, sample):
