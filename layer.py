@@ -69,3 +69,72 @@ class Layer(object):
 
     def __repr__(self):
         return str(self.weights)
+
+
+class LinearLayer(Layer):
+    """Layer with linear activation function"""
+    def __init__(self, size=1, inputs=1, slope=1, next_layer=None):
+        super().__init__(size, inputs, next_layer)
+        self.slope = 1
+        self.jacobean = np.ndarray((size, 1))
+        self.jacobean.fill(slope)
+
+    def apply(self, sample):
+        """Computes final result for a given input sample"""
+        activations = (self.weights @ sample) + self.biases
+        return np.clip(self.slope * activations, -1, 1)
+
+    def back_propagate(self, sample, expected, debug=False):
+        """Run back-propagation in recursive fashion through layers"""
+        result = self.apply(sample)
+        if self.next is None:
+            error = (result - expected).transpose()
+        else:
+            error = self.next.back_propagate(result, expected, debug)
+        factors = self.jacobean * error
+        out = error @ self.weights
+        self.weights = self.weights - (self.step * (sample @ factors).transpose())
+        self.biases = self.biases - (self.step * np.mean(factors, axis=0, keepdims=True).transpose())
+        if debug:
+            print(self.weights)
+            print(self.biases)
+        return out
+
+
+class StepLayer(Layer):
+    """Layer with tiered activation function"""
+    def __init__(self, size=1, inputs=1, intervals=1, next_layer=None):
+        super().__init__(size, inputs, next_layer)
+        self.intervals = intervals
+        self.step_width = 2 / intervals
+        self.step_height = 2 / intervals
+        steps = [-1.0]
+        for i in range(1, intervals + 1):
+            steps.append((i * self.step_height) - 1)
+        steps.append(1.0)
+        self.steps = np.asarray(steps)
+        self.max = intervals + 1
+        self.jacobean = np.ndarray((size, 1))
+        self.jacobean.fill(1)
+
+    def apply(self, sample):
+        indices = self.weights * sample
+        indices = (indices + 1) / self.intervals
+        indices = np.clip(indices, 0, self.max)
+        return self.steps[indices]
+
+    def back_propagate(self, sample, expected, debug=False):
+        """Run back-propagation in recursive fashion through layers"""
+        result = self.apply(sample)
+        if self.next is None:
+            error = (result - expected).transpose()
+        else:
+            error = self.next.back_propagate(result, expected, debug)
+        factors = self.jacobean * error
+        out = error @ self.weights
+        self.weights = self.weights - (self.step * (sample @ factors).transpose())
+        self.biases = self.biases - (self.step * np.mean(factors, axis=0, keepdims=True).transpose())
+        if debug:
+            print(self.weights)
+            print(self.biases)
+        return out
