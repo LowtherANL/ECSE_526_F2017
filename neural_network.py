@@ -1,7 +1,8 @@
 """Neural Network class, currently only supports fully connected"""
 import numpy as np
-import layer as fcl
+import layer
 import random
+import pickle
 
 
 # currently just works for fully connected
@@ -53,4 +54,32 @@ class NeuralNetwork(object):
         self.shape = tuple([*self.shape, layer.size])
 
     # TODO add file saving and restoring
+    def save_file(self, filename, single=True):
+        if single:
+            with open(filename, mode='wb') as output:
+                pickle.dump(self, output)
+        else:
+            for i, lay in enumerate(self.layers):
+                lay.save_file(filename + '-' + str(i))
+
+    def from_files(self, files):
+        # WARNING: this will currently load everything as a tanh layer
+        self.layers = []
+        self.size = 0
+        shape = []
+        last_size = None
+        for file in files:
+            lay = layer.Layer()
+            lay.load_file(file)
+            if last_size is None:
+                last_size = lay.size
+            else:
+                if last_size != lay.input:
+                    raise Exception
+                last_size = lay.size
+            self.layers.append(lay)
+            self.size += 1
+            self.shape.append(lay.size)
+        self.shape = tuple(shape)
+
     # TODO string and pretty printing functions
