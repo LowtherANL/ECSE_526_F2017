@@ -1,5 +1,6 @@
 """Layer class for making up a fully connected neural network"""
 import numpy as np
+import pickle
 
 
 # To choose: either use scipy for logistic, or numpy.tanh as activation
@@ -62,7 +63,23 @@ class Layer(object):
             print(self.biases)
         return out
 
-    # TODO implement file serialization and deserialization
+    def save_file(self, filename=None):
+        if filename is None:
+            filename = 'layer_' + str(self.size) + 'x' + str(self.input) + '.wts'
+        out_structure = {'weights': self.weights, 'biases': self.biases, 'step': self.step}
+        with open(filename, mode='wb') as out_file:
+            pickle.dump(out_structure, out_file)
+
+    def load_file(self, filename):
+        with open(filename, mode='rb') as pickled:
+            structure = pickle.load(pickled)
+            elements = ['weights', 'biases', 'step']
+            if not all([e in structure for e in elements]):
+                raise Exception
+            self.weights = structure['weights']
+            self.biases = structure['biases']
+            self.step = structure['step']
+            self.size, self.input = np.shape(self.weights)
 
     def __str__(self):
         return str(self.weights)
@@ -99,6 +116,27 @@ class LinearLayer(Layer):
             print(self.weights)
             print(self.biases)
         return out
+
+    def save_file(self, filename=None):
+        if filename is None:
+            filename = 'lin_layer_' + str(self.size) + 'x' + str(self.input) + '.wts'
+        out_structure = {'weights': self.weights, 'biases': self.biases, 'step': self.step, 'slope': self.slope,
+                         'jac': self.jacobean}
+        with open(filename, mode='wb') as out_file:
+            pickle.dump(out_structure, out_file)
+
+    def load_file(self, filename):
+        with open(filename, mode='rb') as pickled:
+            structure = pickle.load(pickled)
+            elements = ['weights', 'biases', 'step', 'slope', 'jac']
+            if not all([e in structure for e in elements]):
+                raise Exception
+            self.weights = structure['weights']
+            self.biases = structure['biases']
+            self.step = structure['step']
+            self.size, self.input = np.shape(self.weights)
+            self.slope = structure['slope']
+            self.jacobean = structure['jac']
 
 
 class StepLayer(Layer):
@@ -138,3 +176,32 @@ class StepLayer(Layer):
             print(self.weights)
             print(self.biases)
         return out
+
+    def save_file(self, filename=None):
+        if filename is None:
+            filename = 'lin_layer_' + str(self.size) + 'x' + str(self.input) + '.wts'
+        out_structure = {'weights': self.weights, 'biases': self.biases, 'intervals': self.intervals,
+                         'slope': self.slope, 'jac': self.jacobean}
+        with open(filename, mode='wb') as out_file:
+            pickle.dump(out_structure, out_file)
+
+    def load_file(self, filename):
+        with open(filename, mode='rb') as pickled:
+            structure = pickle.load(pickled)
+            elements = ['weights', 'biases', 'step', 'intervals', 'jac']
+            if not all([e in structure for e in elements]):
+                raise Exception
+            self.weights = structure['weights']
+            self.biases = structure['biases']
+            self.step = structure['step']
+            self.size, self.input = np.shape(self.weights)
+            self.intervals = structure['intervals']
+            self.jacobean = structure['jac']
+            self.step_width = 2 / self.intervals
+            self.step_height = 2 / self.intervals
+            steps = [-1.0]
+            for i in range(1, self.intervals + 1):
+                steps.append((i * self.step_height) - 1)
+            steps.append(1.0)
+            self.steps = np.asarray(steps)
+            self.max = self.intervals + 1
