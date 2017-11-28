@@ -34,14 +34,29 @@ if __name__ == '__main__':
         L.step = L.step / (10 ** (6-i))
         layers[-1].next = L
         layers.append(L)
-    for j in range(100):
+    for j in range(50):
         L1.back_propagate(train, train)
     evaluation = L1.apply_chain(test)
     # verification = np.max(evaluation, axis=0) - np.min(evaluation, axis=0)
     result = error(evaluation, test, axis=0)
 
     # print('check eval: ', verification)
-    # print('result errors: ', result)
-    print('\n', evaluation.transpose()[:,0:5])
+    print('result errors: ', result)
+    # print('\n', evaluation.transpose()[:,0:5])
     # for l in layers:
     #     print(np.max(np.abs(l.weights)))
+    # TODO improve the statistical analysis
+    tumors = result[[8, 10, 12, 14]]
+    healthy = result[[1, 2, 3, 4, 5, 6, 7, 9, 11, 13, 15]]
+
+    train_result = error(L1.apply_chain(train), train, axis=0)
+    threshold = np.max(train_result)
+
+    min_tumor = np.min(tumors)
+    max_healthy = np.max(healthy)
+    fp = np.count_nonzero(healthy >= min_tumor)
+    fn = np.count_nonzero(tumors <= max_healthy)
+    print('max fn, fp:', fn, fp)
+    fp = np.count_nonzero(healthy >= threshold)
+    fn = np.count_nonzero(tumors <= threshold)
+    print('realistic fn, fp', fn, fp)
