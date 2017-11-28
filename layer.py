@@ -118,9 +118,9 @@ class StepLayer(Layer):
         self.jacobean.fill(1)
 
     def apply(self, sample):
-        indices = self.weights * sample
-        indices = (indices + 1) / self.intervals
-        indices = np.clip(indices, 0, self.max)
+        vals = (self.weights @ sample) + self.biases
+        indices = (vals + 1) // self.intervals
+        indices = np.clip(indices, 0, self.max).astype(np.int64)
         return self.steps[indices]
 
     def back_propagate(self, sample, expected, debug=False):

@@ -19,7 +19,7 @@ def error(input, output, axis):
     return np.sum(np.power(input - output, 2), axis=axis)
 
 
-def construct_network(dataset):
+def construct_network(dataset, middle=None):
     train, test = load_data(dataset)
     layer_shapes = [train.shape[0]]
     layer_shapes.append(int(layer_shapes[0] / 2))
@@ -30,7 +30,13 @@ def construct_network(dataset):
     L1.step = 0.00000001
     layers = [L1]
     for i in range(1, len(layer_shapes)):
-        L = layer.Layer(size=layer_shapes[i], inputs=layer_shapes[i - 1])
+        if (i == 2):
+            if middle == 'lin':
+                L = layer.LinearLayer(size=layer_shapes[i], inputs=layer_shapes[i - 1], slope=1)
+            else:
+                L = layer.StepLayer(size=layer_shapes[i], inputs=layer_shapes[i - 1], intervals=10)
+        else:
+            L = layer.Layer(size=layer_shapes[i], inputs=layer_shapes[i - 1])
         L.step = L.step / (10 ** (6 - i))
         layers[-1].next = L
         layers.append(L)
@@ -45,6 +51,15 @@ def train_network(NN, data, iterations):
     return NN
 
 
+def train_network(NN, data, iterations, test, tumor):
+    for i in range(iterations):
+        NN.back_propagate(data, data)
+        train_error = error(NN.apply_chain(data), data, axis=0)
+        print('max: ', np.max(train_error))
+        test_network(NN, test, data, tumor)
+    return NN
+
+
 def test_network(NN, test, train, tumor):
     evaluation = NN.apply_chain(test)
     result = error(evaluation, test, axis=0)
@@ -56,7 +71,7 @@ def test_network(NN, test, train, tumor):
     healthy = result[h]
 
     train_result = error(NN.apply_chain(train), train, axis=0)
-    print('training errors: ', train_result)
+    #print('training errors: ', train_result)
     threshold = np.max(train_result)
     print('threshold: ', threshold)
     min_tumor = np.min(tumors)
