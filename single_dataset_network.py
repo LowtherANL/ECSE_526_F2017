@@ -10,7 +10,7 @@ EXT = '.pck'
 def load_data(set_number):
     with open(DATAPATH + 'train' + str(set_number) + EXT, mode='rb') as f_train:
         training = pickle.load(f_train)
-    with open(DATAPATH + 'test' + str(DEFAULT_SET) + EXT, mode='rb') as f_test:
+    with open(DATAPATH + 'test' + str(set_number) + EXT, mode='rb') as f_test:
         testing = pickle.load(f_test)
     return training.transpose(), testing.transpose()
 
@@ -40,20 +40,25 @@ def construct_network(dataset):
 def train_network(NN, data, iterations):
     for i in range(iterations):
         NN.back_propagate(data, data)
+        train_error = error(NN.apply_chain(data), data, axis=0)
+        print('max: ', np.max(train_error))
     return NN
 
 
-def test_network(NN, test, train):
+def test_network(NN, test, train, tumor):
     evaluation = NN.apply_chain(test)
     result = error(evaluation, test, axis=0)
     print('result errors: ', result)
     # TODO improve the statistical analysis
-    tumors = result[[8, 10, 12, 14]]
-    healthy = result[[1, 2, 3, 4, 5, 6, 7, 9, 11, 13, 15]]
+    # TODO IPORTANT fix the labelling to be corect samples
+    tumors = result[tumor]
+    h = list(set(range(15)) - set(tumor))
+    healthy = result[h]
 
     train_result = error(NN.apply_chain(train), train, axis=0)
+    print('training errors: ', train_result)
     threshold = np.max(train_result)
-
+    print('threshold: ', threshold)
     min_tumor = np.min(tumors)
     max_healthy = np.max(healthy)
     fp = np.count_nonzero(healthy >= min_tumor)
