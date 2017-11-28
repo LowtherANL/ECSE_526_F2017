@@ -27,17 +27,21 @@ if __name__ == '__main__':
     layer_shapes.append(layer_shapes[1])
     layer_shapes.append(layer_shapes[0])
     L1 = layer.Layer(size=layer_shapes[0], inputs=layer_shapes[0])
+    L1.step = 0.00000001
     layers = [L1]
     for i in range(1,len(layer_shapes)):
         L = layer.Layer(size=layer_shapes[i], inputs=layer_shapes[i - 1])
+        L.step = L.step / (10 ** (6-i))
         layers[-1].next = L
         layers.append(L)
-    for j in range(300):
+    for j in range(100):
         L1.back_propagate(train, train)
     evaluation = L1.apply_chain(test)
-    verification = np.max(evaluation, axis=0) - np.min(evaluation, axis=0)
+    # verification = np.max(evaluation, axis=0) - np.min(evaluation, axis=0)
     result = error(evaluation, test, axis=0)
 
-    print('check eval: ', verification)
-    print('result errors: ', result)
+    # print('check eval: ', verification)
+    # print('result errors: ', result)
     print('\n', evaluation.transpose()[:,0:5])
+    # for l in layers:
+    #     print(np.max(np.abs(l.weights)))

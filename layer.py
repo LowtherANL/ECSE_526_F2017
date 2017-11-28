@@ -19,7 +19,7 @@ class Layer(object):
         self.biases = np.random.uniform(-weight_range, weight_range, (size, 1))
         self.next = next_layer
         # Get correct step size, possibly in neural network
-        self.step = .003
+        self.step = .01
 
     def apply(self, sample):
         """Computes final result for a given input sample"""
