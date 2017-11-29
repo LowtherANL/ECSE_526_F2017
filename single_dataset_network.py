@@ -1,6 +1,7 @@
 import numpy as np
 import layer
 import pickle
+from roc_collection import *
 
 
 DEFAULT_SET = 1
@@ -51,7 +52,7 @@ def train_network(NN, data, iterations):
     return NN
 
 
-def train_network(NN, data, iterations, test, tumor):
+def train_network_test(NN, data, iterations, test, tumor):
     for i in range(iterations):
         NN.back_propagate(data, data)
         train_error = error(NN.apply_chain(data), data, axis=0)
@@ -60,17 +61,21 @@ def train_network(NN, data, iterations, test, tumor):
     return NN
 
 
-def test_network(NN, test, train, tumor):
+def test_network(NN, test, train, tumor, collector=None, i=0):
     evaluation = NN.apply_chain(test)
     result = error(evaluation, test, axis=0)
     print('result errors: ', result)
+    train_result = error(NN.apply_chain(train), train, axis=0)
     # TODO improve the statistical analysis
     # TODO IPORTANT fix the labelling to be corect samples
     tumors = result[tumor]
+
+    if collector is not None:
+        collector.write_roc(i, collector.get_roc(train_result, result, tumors))
+
     h = list(set(range(15)) - set(tumor))
     healthy = result[h]
 
-    train_result = error(NN.apply_chain(train), train, axis=0)
     #print('training errors: ', train_result)
     threshold = np.max(train_result)
     print('threshold: ', threshold)
