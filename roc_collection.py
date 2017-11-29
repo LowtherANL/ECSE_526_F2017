@@ -1,6 +1,6 @@
 import numpy as np
 import csv
-import pyplot
+import matplotlib.pyplot as mplot
 
 
 class Collector(object):
@@ -33,11 +33,14 @@ class Tabulator(object):
     def __init__(self, filename):
         self.set_roc = {}
         points = 0
+        self.points = None
         with open(filename, mode='r') as data_file:
             reader = csv.DictReader(data_file)
             for row in reader:
                 if points == 0:
                     points = len(row) - 2
+                if self.points is None:
+                    self.points = list(row.keys())[1:-1]
                 index = int(row['dataset'])
                 self.set_roc[index] = {}
                 for k in list(row.keys())[1:-1]:
@@ -50,6 +53,14 @@ class Tabulator(object):
                 roc_m[i][j] = data[val]
         self.roc = np.mean(roc_m, axis=0)
 
+    def plot_roc(self):
+        mplot.plot(self.points, self.roc)
+        mplot.show()
+
+    def auc(self):
+        step = 1/len(self.points)
+        return np.sum(step * self.roc)
+
     def __str__(self):
         return str(self.roc)
 
@@ -61,3 +72,5 @@ if __name__ == '__main__':
     tab = Tabulator('first_test.csv')
     print(tab)
     print(len(tab.roc))
+    tab.plot_roc()
+    print(tab.auc())
