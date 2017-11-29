@@ -1,4 +1,7 @@
 import numpy as np
+import csv
+import pyplot
+
 
 class Collector(object):
     def __init__(self, filename, samples=54):
@@ -24,3 +27,37 @@ class Collector(object):
 
     def close(self):
         self.file.close()
+
+
+class Tabulator(object):
+    def __init__(self, filename):
+        self.set_roc = {}
+        points = 0
+        with open(filename, mode='r') as data_file:
+            reader = csv.DictReader(data_file)
+            for row in reader:
+                if points == 0:
+                    points = len(row) - 2
+                index = int(row['dataset'])
+                self.set_roc[index] = {}
+                for k in list(row.keys())[1:-1]:
+                #    if k == 'dataset':
+                #        continue
+                    self.set_roc[index][float(k)] = (float(row[k]))
+        roc_m = np.ndarray((len(self.set_roc), points))
+        for i, data in enumerate(self.set_roc.values()):
+            for j, val in enumerate(sorted(data.keys())):
+                roc_m[i][j] = data[val]
+        self.roc = np.mean(roc_m, axis=0)
+
+    def __str__(self):
+        return str(self.roc)
+
+    def __repr__(self):
+        return str(self.roc)
+
+
+if __name__ == '__main__':
+    tab = Tabulator('first_test.csv')
+    print(tab)
+    print(len(tab.roc))

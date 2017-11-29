@@ -38,8 +38,8 @@ def load_mat_to_numpy(files):
     return number_dataset, train_data, test_data
 
 if __name__ == '__main__':
-    test_files = glob.glob(dataDir + 'features_test_*')
-    train_files = glob.glob(dataDir + 'features_train_*')
+    test_files = sorted(glob.glob(dataDir + 'features_test_*'))
+    train_files = sorted(glob.glob(dataDir + 'features_train_*'))
     filenames = zip(train_files, test_files)
     for files in filenames :
         # name = str(file)
