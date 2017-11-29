@@ -4,7 +4,7 @@ class Collector(object):
     def __init__(self, filename, samples=54):
         self.file = open(filename, mode='w')
         self.file.write('dataset,')
-        for i in range(samples)
+        for i in range(samples):
             self.file.write(str(i / 54) + ',')
         self.file.write('\n')
 
