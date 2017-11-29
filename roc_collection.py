@@ -13,7 +13,7 @@ class Collector(object):
         threshes = np.sort(total)
         positive_rates = []
         for t in threshes:
-            positive_rates.append(np.count_nonzero(tumors <= t))/4
+            positive_rates.append(np.count_nonzero(tumors <= t) / 4)
         return positive_rates
 
     def write_roc(self, dataset, rates):
