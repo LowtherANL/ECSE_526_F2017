@@ -17,9 +17,9 @@ if __name__ == '__main__':
                     indices[int(k)] = [int(row[k])]
     for i in range(1, sets):
         print('set: ', i)
-        NN, training, testing = construct_network(i, middle='step')
+        NN, training, testing = construct_network(i, middle='linear')
         t = indices[i]
-        train_network(NN, training, 10)
+        train_network(NN, training, 25)
         test_network(NN, testing, training, t, collect, i)
         # train_network(NN, training, 10, testing, t)
         # test_network(NN, testing, training, t)

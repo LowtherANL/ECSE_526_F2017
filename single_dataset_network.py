@@ -23,8 +23,8 @@ def error(input, output, axis):
 def construct_network(dataset, middle=None):
     train, test = load_data(dataset)
     layer_shapes = [train.shape[0]]
-    layer_shapes.append(int(layer_shapes[0] / 2))
-    layer_shapes.append(int(layer_shapes[1] / 5))
+    layer_shapes.append(int(layer_shapes[0] / 20))
+    layer_shapes.append(int(layer_shapes[1] / 20))
     layer_shapes.append(layer_shapes[1])
     layer_shapes.append(layer_shapes[0])
     L1 = layer.Layer(size=layer_shapes[0], inputs=layer_shapes[0])
@@ -34,8 +34,10 @@ def construct_network(dataset, middle=None):
         if (i == 2):
             if middle == 'lin':
                 L = layer.LinearLayer(size=layer_shapes[i], inputs=layer_shapes[i - 1], slope=1)
-            else:
+            elif middle == 'step':
                 L = layer.StepLayer(size=layer_shapes[i], inputs=layer_shapes[i - 1], intervals=10)
+            else:
+                L = layer.Layer(size=layer_shapes[i], inputs=layer_shapes[i - 1])
         else:
             L = layer.Layer(size=layer_shapes[i], inputs=layer_shapes[i - 1])
         L.step = L.step / (10 ** (6 - i))

@@ -69,7 +69,7 @@ class Tabulator(object):
 
 
 if __name__ == '__main__':
-    tab = Tabulator('first_test.csv')
+    tab = Tabulator('linear-20-20-20[25].csv')
     print(tab)
     print(len(tab.roc))
     tab.plot_roc()
