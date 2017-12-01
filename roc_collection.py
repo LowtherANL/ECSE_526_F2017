@@ -68,8 +68,34 @@ class Tabulator(object):
         return str(self.roc)
 
 
+def convert_old_file(filename, suffix='-new'):
+    with open(filename, mode='r') as old:
+        reader = csv.reader(old)
+        header = reader.__next__()
+        # header = [header[0], *header[:1:-1]]
+        data = []
+        indices = []
+        for i, row in enumerate(reader):
+            indices.append(row[0])
+            data.append(list(map(float, row[1:-1])))
+        data = np.asarray(data)
+        data = 1 - data
+        data = data[:, ::-1]
+        with open(filename[:-4] + suffix + '.csv', mode='w') as new:
+            new.write(header[0])
+            for h in header[1:]:
+                new.write(',' + h)
+            new.write('\n')
+            for j, index in enumerate(indices):
+                new.write(index + ',')
+                for val in data[j]:
+                    new.write(str(val) + ',')
+                new.write('\n')
+
+
 if __name__ == '__main__':
-    tab = Tabulator('../longtest/step-lin-2-[5].csv')
+    convert_old_file('first_test_tanh.csv')
+    tab = Tabulator('first_test_tanh-new.csv')
     print(tab)
     print(len(tab.roc))
     tab.plot_roc()
