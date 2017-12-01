@@ -13,10 +13,10 @@ class Collector(object):
 
     def get_roc(self, train, test, tumors):
         total = np.concatenate((train, test), axis=0)
-        threshes = np.sort(total)
+        threshes = np.sort(total)[::-1]
         positive_rates = []
         for t in threshes:
-            positive_rates.append(np.count_nonzero(tumors <= t) / 4)
+            positive_rates.append(np.count_nonzero(tumors >= t) / 4)
         return positive_rates
 
     def write_roc(self, dataset, rates):
@@ -69,7 +69,7 @@ class Tabulator(object):
 
 
 if __name__ == '__main__':
-    tab = Tabulator('linear-20-20-20[25].csv')
+    tab = Tabulator('../longtest/step-lin-2-[5].csv')
     print(tab)
     print(len(tab.roc))
     tab.plot_roc()
