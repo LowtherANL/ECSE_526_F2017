@@ -68,7 +68,7 @@ class Tabulator(object):
         return str(self.roc)
 
 
-def convert_old_file(filename, suffix='-new'):
+def convert_old_file(filename, suffix='-new', output=None):
     with open(filename, mode='r') as old:
         reader = csv.reader(old)
         header = reader.__next__()
@@ -81,7 +81,8 @@ def convert_old_file(filename, suffix='-new'):
         data = np.asarray(data)
         data = 1 - data
         data = data[:, ::-1]
-        with open(filename[:-4] + suffix + '.csv', mode='w') as new:
+        new_name = filename[:-4] + suffix + '.csv' if output is None else output
+        with open(new_name, mode='w') as new:
             new.write(header[0])
             for h in header[1:]:
                 new.write(',' + h)
