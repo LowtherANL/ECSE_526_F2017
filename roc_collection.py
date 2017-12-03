@@ -95,8 +95,8 @@ def convert_old_file(filename, suffix='-new', output=None):
 
 
 if __name__ == '__main__':
-    convert_old_file('first_test_tanh.csv')
-    tab = Tabulator('first_test_tanh-new.csv')
+    #convert_old_file('first_test_tanh.csv')
+    tab = Tabulator('../longtest/step-lin-1-[27].csv')
     print(tab)
     print(len(tab.roc))
     tab.plot_roc()

@@ -26,5 +26,5 @@ for f, s, i in sort_info:
     tab = Tabulator(f)
     aucs.append(tab.auc())
 data = np.asarray(aucs)
-data = data.reshape((5,7))
+data = data.reshape((3,10))
 print(data)

@@ -20,7 +20,7 @@ def single_construct_network(dataset, steps):
     return L1, train, test
 
 if __name__ == '__main__':
-    for steps in range(1,15):
+    for steps in range(3,4):
         sets = len(glob.glob('../pythondata/test*')) + 1
         indices = {}
         with open('../tumor_indices.csv', mode='r') as index_list:
@@ -32,14 +32,20 @@ if __name__ == '__main__':
                     except KeyError:
                         indices[int(k)] = [int(row[k])]
         collectors = []
-        for m in range(5, 36, 5):
+        learning_iterations = 3
+        for m in range(15, 43, learning_iterations):
             collectors.append(Collector('../longtest/step-lin-' + str(steps) + '-[' + str(m) + '].csv'))
         for i in range(1, sets):
             print('set: ', i)
             NN, training, testing = single_construct_network(i, steps)
+            NN.step = NN.step / steps
+            lay = NN
+            while lay.next is not None:
+                lay = lay.next
+                lay.step = lay.step / steps
             t = indices[i]
             for collect in collectors:
-                train_network(NN, training, 5)
+                train_network(NN, training, learning_iterations)
                 test_network(NN, testing, training, t, collect, i)
         for collect in collectors:
             collect.close()
