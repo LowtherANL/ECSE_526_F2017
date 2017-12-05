@@ -3,6 +3,8 @@ from single_dataset_network import *
 from roc_collection import *
 import csv
 
+
+# Iterate a single network over all datasets
 if __name__ == '__main__':
     sets = len(glob.glob('../pythondata/test*')) + 1
     collect = Collector('first_test.csv')
@@ -21,6 +23,4 @@ if __name__ == '__main__':
         t = indices[i]
         train_network(NN, training, 25)
         test_network(NN, testing, training, t, collect, i)
-        # train_network(NN, training, 10, testing, t)
-        # test_network(NN, testing, training, t)
     collect.close()

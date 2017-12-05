@@ -3,6 +3,7 @@ from roc_collection import Tabulator
 import glob
 
 
+# Parse mass-produced data files
 def step_run_parser(filename):
     original = filename
     filename = filename[filename.rfind('/'):]
@@ -16,6 +17,7 @@ def step_run_parser(filename):
     return original, step, iters
 
 
+# Collate toal data, and present it
 files = glob.glob('../longtest/*')
 info = []
 for file in files:

@@ -4,7 +4,9 @@ from roc_collection import *
 import csv
 
 
+# Run a large number of tests, using ordered modifications of parameters
 def single_construct_network(dataset, steps):
+    # Three layer network constructor
     train, test = load_data(dataset)
     layer_shapes = [train.shape[0]]
     layer_shapes.append(int(layer_shapes[0]))
