@@ -1,11 +1,9 @@
 """Neural Network class, currently only supports fully connected"""
 import numpy as np
-import layer as fcl
 import random
 
 
-# currently just works for fully connected
-# if a different version of a network is created, this should really be a subclass
+# This has ended up being a helper class, and was never used. With that in mind, it could be of development value
 class NeuralNetwork(object):
     """General neural network class for back-propagation"""
     def __init__(self, layers):
@@ -21,8 +19,6 @@ class NeuralNetwork(object):
 
     def apply(self, sample):
         """Applies an input vector or matrix to the neural net and returns the result"""
-        # could be rewritten with reduce as functional
-        # probably not worthwhile
         for layer in self.layers:
             sample = layer.apply(sample)
         return sample
@@ -42,15 +38,11 @@ class NeuralNetwork(object):
             expected[:,i] = cases[:,j]
         # apply back-propagation
         self.layers[0].back_propagate(samples,expected)
-        # TODO add proper iteration and step size changing
 
     def add_layer(self, layer):
         """Adds a layer to the current network, on the end"""
-        # Indexed addition would need size checking, and might be worth adding later
         self.size += 1
         self.layers.append(layer)
         # splat operator into list with added value, reconvert to tuple
         self.shape = tuple([*self.shape, layer.size])
 
-    # TODO add file saving and restoring
-    # TODO string and pretty printing functions
