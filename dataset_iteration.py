@@ -5,7 +5,7 @@ import csv
 
 if __name__ == '__main__':
     sets = len(glob.glob('../pythondata/test*')) + 1
-    collect = Collector('first_test.csv')
+    collect = Collector('random_test.csv')
     indices = {}
     with open('../tumor_indices.csv', mode='r') as index_list:
         reader = csv.DictReader(index_list)
@@ -19,7 +19,7 @@ if __name__ == '__main__':
         print('set: ', i)
         NN, training, testing = construct_network(i, middle='linear')
         t = indices[i]
-        train_network(NN, training, 25)
+        #train_network(NN, training, 25)
         test_network(NN, testing, training, t, collect, i)
         # train_network(NN, training, 10, testing, t)
         # test_network(NN, testing, training, t)

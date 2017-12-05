@@ -1,6 +1,7 @@
 import numpy as np
 import csv
 import matplotlib.pyplot as mplot
+import matplotlib.ticker as tck
 
 
 class Collector(object):
@@ -96,8 +97,24 @@ def convert_old_file(filename, suffix='-new', output=None):
 
 if __name__ == '__main__':
     #convert_old_file('first_test_tanh.csv')
-    tab = Tabulator('../longtest/step-lin-1-[27].csv')
-    print(tab)
-    print(len(tab.roc))
-    tab.plot_roc()
-    print(tab.auc())
+    #tab1 = Tabulator('../longtest/lin-step-lin-1-[12].csv')
+    #tab2 = Tabulator('../longtest2/step-lin-1-[27].csv')
+    tab3 = Tabulator('random_test.csv')
+    # print(tab)
+    # print(len(tab.roc))
+    # tab.plot_roc()
+    # print(tab.auc())
+    fig, ax = mplot.subplots()
+    # ax.xaxis.set_ticks(np.arange(0, 1.1, 0.1))
+    #mplot.plot(tab1.points, tab1.roc)
+    #print(tab1.auc())
+    #print(tab2.auc())
+    print(tab3.auc())
+    #mplot.plot(tab1.points, tab2.roc)
+    mplot.plot(tab3.points, tab3.roc)
+    #mplot.legend(['Linear-Step-Linear', 'Tanh-Step-Linear', 'Tanh-Tanh-Step-Tanh-Tanh'])
+    # print(np.arange(0, 1.1, .1))
+    # mplot.xticks(np.arange(0, 1, .1))
+    #ax.xaxis.set_major_formatter(tck.FormatStrFormatter('%f'))
+    #mplot.locator_params(axis='x', nbins=11)
+    mplot.show()

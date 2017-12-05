@@ -9,7 +9,7 @@ def single_construct_network(dataset, steps):
     layer_shapes = [train.shape[0]]
     layer_shapes.append(int(layer_shapes[0]))
     layer_shapes.append(int(layer_shapes[1]))
-    L1 = layer.Layer(size=layer_shapes[0], inputs=layer_shapes[0])
+    L1 = layer.LinearLayer(size=layer_shapes[0], inputs=layer_shapes[0])
     L1.step = 0.000001
     L2 = layer.StepLayer(size=layer_shapes[1], inputs=layer_shapes[0], intervals=steps)
     L2.step = 0.00001
@@ -20,7 +20,7 @@ def single_construct_network(dataset, steps):
     return L1, train, test
 
 if __name__ == '__main__':
-    for steps in range(3,4):
+    for steps in range(1, 3):
         sets = len(glob.glob('../pythondata/test*')) + 1
         indices = {}
         with open('../tumor_indices.csv', mode='r') as index_list:
@@ -32,9 +32,9 @@ if __name__ == '__main__':
                     except KeyError:
                         indices[int(k)] = [int(row[k])]
         collectors = []
-        learning_iterations = 3
-        for m in range(15, 43, learning_iterations):
-            collectors.append(Collector('../longtest/step-lin-' + str(steps) + '-[' + str(m) + '].csv'))
+        learning_iterations = 1
+        for m in range(0, 15, learning_iterations):
+            collectors.append(Collector('../longtest/lin-step-lin-' + str(steps) + '-[' + str(m) + '].csv'))
         for i in range(1, sets):
             print('set: ', i)
             NN, training, testing = single_construct_network(i, steps)
