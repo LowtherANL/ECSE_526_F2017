@@ -4,6 +4,8 @@ import numpy as np
 import pickle
 import glob
 
+# Helper script to convert the group's data files to python-friendly pickled numpy objects
+
 np.set_printoptions(threshold=np.nan)
 dataDir = "../Data/" #put your directory here
 
@@ -25,6 +27,7 @@ def load_mat_to_numpy(files):
     train_data = train_data.reshape((train_size[0], train_size[1] * train_size[2]), order='C')
     test_data = test_data.reshape((test_data.shape[0], train_size[1] * train_size[2]), order='C')
 
+    # Perform normalization and centering across the entire set, including testing samples
     total_data = np.concatenate((train_data, test_data), axis=0)
 
     feature_means = np.mean(total_data, axis=0)
@@ -37,13 +40,13 @@ def load_mat_to_numpy(files):
 
     return number_dataset, train_data, test_data
 
+
+# Run over a default location, if the data is known
 if __name__ == '__main__':
     test_files = sorted(glob.glob(dataDir + 'features_test_*'))
     train_files = sorted(glob.glob(dataDir + 'features_train_*'))
     filenames = zip(train_files, test_files)
-    for files in filenames :
-        # name = str(file)
-
+    for files in filenames:
         nb, train, test = load_mat_to_numpy(files)
         number = int(nb)
         test_filename = '../PythonData/test' + str(number) + '.pck'
