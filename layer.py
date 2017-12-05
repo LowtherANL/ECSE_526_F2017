@@ -2,9 +2,7 @@
 import numpy as np
 
 
-# To choose: either use scipy for logistic, or numpy.tanh as activation
-# Currently, assumes the output will be of size one. This could be changed to get a "strength" indication, but will
-# need modification of the back propagation to properly behave.
+# The default layer uses a Tanh activation function
 class Layer(object):
     """Fully connected neural network using vectorized operations"""
     # TODO implement correct biasing terms
@@ -13,7 +11,6 @@ class Layer(object):
         # next_layer parameter, or next attribute should point to the next layer of nodes for back-prop
         self.size = size
         self.input = inputs
-        # self.weights = np.ndarray((size, inputs))
         weight_range = np.sqrt(3 / inputs)
         self.weights = np.random.uniform(-weight_range, weight_range, (size, inputs))
         self.biases = np.random.uniform(-weight_range, weight_range, (size, 1))
@@ -27,42 +24,27 @@ class Layer(object):
         return np.tanh(activations)
 
     def apply_chain(self, sample):
+        """Applies the results through a chain of neural networks, connected through next"""
         output = self.apply(sample)
         if self.next is not None:
             return self.next.apply_chain(output)
         else:
             return output
 
-    def back_propagate(self, sample, expected, debug=False):
+    def back_propagate(self, sample, expected):
         """Run back-propagation in recursive fashion through layers"""
         result = self.apply(sample)
         if self.next is None:
             error = (result - expected).transpose()
         else:
-            error = self.next.back_propagate(result, expected, debug)
-        # Double check matrix operations for correct updates
-        if debug:
-            print('error: \n', error)
+            error = self.next.back_propagate(result, expected)
+        # Matrix operations for updates
         jacobean = (1 - (result**2)).transpose()
-        if debug:
-            print('jac: \n', jacobean)
         factors = jacobean * error
-        if debug:
-            print('factors: \n', factors)
-        if debug:
-            print('weighted change: \n', sample @ factors)
-        # print(self.weights)
         out = error @ self.weights
         self.weights = self.weights - (self.step * (sample @ factors).transpose())
-        # print(factors.transpose())
-        # print(np.mean(factors, axis=0, keepdims=True))
         self.biases = self.biases - (self.step * np.mean(factors, axis=0, keepdims=True).transpose())
-        if debug:
-            print(self.weights)
-            print(self.biases)
         return out
-
-    # TODO implement file serialization and deserialization
 
     def __str__(self):
         return str(self.weights)
@@ -72,7 +54,7 @@ class Layer(object):
 
 
 class LinearLayer(Layer):
-    """Layer with linear activation function"""
+    """Layer with linear activation function, subclasses Layer"""
     def __init__(self, size=1, inputs=1, slope=1, next_layer=None):
         super().__init__(size, inputs, next_layer)
         self.slope = 1
@@ -102,9 +84,10 @@ class LinearLayer(Layer):
 
 
 class StepLayer(Layer):
-    """Layer with tiered activation function"""
+    """Layer with stepped activation function, subclasses Layer"""
     def __init__(self, size=1, inputs=1, intervals=1, next_layer=None):
         super().__init__(size, inputs, next_layer)
+        # Precompute information for interval splitting
         self.intervals = intervals
         self.step_width = 2 / intervals
         self.step_height = 2 / intervals
@@ -118,6 +101,8 @@ class StepLayer(Layer):
         self.jacobean.fill(1)
 
     def apply(self, sample):
+        """Takes an input and returns the value after one application"""
+        # Overloaded apply for correct application
         vals = (self.weights @ sample) + self.biases
         indices = (vals + 1) // self.intervals
         indices = np.clip(indices, 0, self.max).astype(np.int64)
